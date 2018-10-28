@@ -16,7 +16,7 @@ from flask_login import (
 )
 from werkzeug import secure_filename
 from urllib.parse import urljoin
-import os, json
+import os, os.path, json
 
 from firmware_server.klaytn import *
 klay = Klaytn('http://klaytn.ngrok.io')
@@ -32,10 +32,14 @@ def upload():
         if file:
             # 파일경로와 랜덤키
             filename = secure_filename(file.filename)
-            _dir = os.path.join(app.config['UPLOAD_FOLDER'], '/' + randomKey() + hash_string(filename) + '/')
+            _dir = os.path.join(app.config['UPLOAD_FOLDER'], randomKey() + hash_string(filename) + '/')
+            print(app.config['UPLOAD_FOLDER'])
+            print(_dir)
             if not os.path.exists(_dir):
                 os.makedirs(_dir)
+                print(_dir)
             _route = os.path.join(_dir + filename)
+            print(_route)
 
             file.save(_route)
             newfile = File(
@@ -74,7 +78,7 @@ def download(file_id):
         return json.dumps({'result': {
             'url': urljoin(
                 request.url_root,
-                url_for('static', filename=thisfile.route)
+                thisfile.route.replace('firmware_server', '')
             )
         }}, sort_keys=True, indent=4)
     return json.dumps({'error': {'code': 401, 'message': 'Wrong login credentials'}}, sort_keys=True, indent=4)
