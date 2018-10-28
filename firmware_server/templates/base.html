@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Firmware</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <ul>
+        {% if not current_user.is_authenticated %}
+            <li><a href="{{ url_for('login') }}">로그인</a></li>
+            <li><a href="{{ url_for('join') }}">회원가입</a></li>
+        {% else %}
+            <li><a href="{{ url_for('logout') }}">로그아웃</a></li>
+            <li><a href="{{ url_for('upload') }}">업로드</a></li>
+        {% endif %}
+    </ul>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
