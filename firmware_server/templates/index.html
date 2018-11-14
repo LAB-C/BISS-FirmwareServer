@@ -1,4 +1,6 @@
-{% extends 'base.html' %}
-{% block content %}
-index
-{% endblock %}
+<body>
+    <ul>
+        <li><a href="{{ url_for('upload') }}">upload firmware</a></li>
+        <li><a href="{{ url_for('register') }}">register device</a></li>
+    </ul>
+</body>

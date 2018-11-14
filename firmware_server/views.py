@@ -19,12 +19,20 @@ from urllib.parse import urljoin
 import os, os.path, json
 
 from firmware_server.klaytn import *
-klay = Klaytn('http://klaytn.ngrok.io')
+klay = Klaytn('http://ubuntu.hanukoon.com:8551/')
 
 @app.before_request
 def session_config():
     session.permanent = True # permanent session
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
+    
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
@@ -32,7 +40,7 @@ def upload():
         if file:
             # 파일경로와 랜덤키
             filename = secure_filename(file.filename)
-            _dir = os.path.join(app.config['UPLOAD_FOLDER'], randomKey() + hash_string(filename) + '/')
+            _dir = os.path.join(app.config['UPLOAD_FOLDER'], random_key() + hash_string(filename) + '/')
             print(app.config['UPLOAD_FOLDER'])
             print(_dir)
             if not os.path.exists(_dir):
@@ -44,7 +52,7 @@ def upload():
             file.save(_route)
             newfile = File(
                 route = _route,
-                key = randomKey()
+                key = random_key()
             )
         
             db.session.add(newfile)
@@ -66,7 +74,7 @@ def upload():
             return json.dumps({'success': {'txhash': _txhash, 'file_id': newfile.id}}, sort_keys=True, indent=4)
         else:
             return json.dumps({'error': {'code': 400, 'message': 'No file'}}, sort_keys=True, indent=4)
-    return json.dumps({'error': {'code': 405, 'message': 'Wrong method; POST only'}}, sort_keys=True, indent=4)
+    return render_template('upload.html')
 
 @app.route('/download/<file_id>', methods=['POST'])
 def download(file_id):
