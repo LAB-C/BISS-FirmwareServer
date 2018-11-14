@@ -29,12 +29,27 @@ def session_config():
 def home():
     return render_template('index.html')
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
+    # name, wallet
+    if request.method == 'POST':
+        if len(wallet) != 45:
+            return 'Not vaild wallet address'
+        try:
+            newdevice = Device(
+                name=request.form.get('name'),
+                wallet=request.form.get('wallet')
+            )
+            db.session.add(newdevice)
+            db.session.commit()
+        except:
+            return 'Error'
+        return 'Success<br>name: ' + newdevice.name + '<br>wallet: ' + newdevice.wallet
     return render_template('register.html')
     
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    # list of devices, file
     if request.method == 'POST':
         file = request.files['file']
         if file:
