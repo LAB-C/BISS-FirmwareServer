@@ -33,12 +33,13 @@ def home():
 def register():
     # name, wallet
     if request.method == 'POST':
-        if len(wallet) != 45:
+        wallet = request.form.get('wallet')
+        if len(wallet) != 42:
             return 'Not vaild wallet address'
         try:
             newdevice = Device(
                 name=request.form.get('name'),
-                wallet=request.form.get('wallet')
+                wallet=wallet
             )
             db.session.add(newdevice)
             db.session.commit()
@@ -67,7 +68,8 @@ def upload():
             file.save(_route)
             newfile = File(
                 route = _route,
-                key = random_key()
+                key = random_key(),
+                hash = hash_file(_route)
             )
         
             db.session.add(newfile)
@@ -105,3 +107,12 @@ def download(file_id):
             )
         }}, sort_keys=True, indent=4)
     return json.dumps({'error': {'code': 401, 'message': 'Wrong login credentials'}}, sort_keys=True, indent=4)
+
+@app.route('/check/<file_id>/<file_hash>', methods=['POST'])
+def check(file_id):
+    file_id = int(file_id)
+    thisfile = File.query.get(file_id)
+    if thisfile.hash != file_hash:
+        return 'False'
+    return 'True'
+    
