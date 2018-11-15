@@ -1,9 +1,10 @@
 const args = process.argv;
 const wallet = args[2];
 const data = args[3];
+const url = args[4];
 
 var Caver = require('caver-js');
-var caver = new Caver('http://klaytn.ngrok.io');
+var caver = new Caver(url);
 var Transmission = require('./blockchain/build/contracts/Transmission.json');
 var Transmission = new caver.klay.Contract(Transmission.abi, '0x20c0b6bc23bfcbe9dad09221f90365f740f779c9');
 Transmission.methods._save(data).send({from: wallet})

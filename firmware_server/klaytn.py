@@ -20,6 +20,8 @@ class Klaytn:
 
     def sendData(self, wallet, data):
         print(wallet, data)
-        output = subprocess.Popen(['node', 'firmware_server/send.js', wallet, '\'' + data + '\''], stdout=subprocess.PIPE ).communicate()[0]
+        output = subprocess.Popen(['node', 'firmware_server/send.js', wallet, data, self.url], stdout=subprocess.PIPE ).communicate()[0]
         print(output)
+        if 'Error' in str(output):
+            return False
         return output.strip().decode()

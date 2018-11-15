@@ -17,6 +17,7 @@ class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     route = db.Column(db.String, unique=True, nullable=False)
     key = db.Column(db.String, unique=False, nullable=False)
+    hash = db.Column(db.String, unique=False)
     txhash = db.Column(db.String, unique=False)
     
     def __repr__(self):
