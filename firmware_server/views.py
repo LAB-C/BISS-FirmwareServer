@@ -93,7 +93,7 @@ def upload():
             return json.dumps({'success': {'txhash': _txhash, 'file_id': newfile.id}}, sort_keys=True, indent=4)
         else:
             return json.dumps({'error': {'code': 400, 'message': 'No file'}}, sort_keys=True, indent=4)
-    return render_template('upload.html')
+    return render_template('upload.html', devices=Device.query.all())
 
 @app.route('/download/<file_id>', methods=['POST'])
 def download(file_id):
