@@ -29,7 +29,7 @@ def session_config():
 @app.route('/')
 def home():
     today = date.today()
-    log_data = {'labels': [], 'devices': [], 'firms': []}
+    log_data = {'labels': [], 'devices': [], 'firms': [], 'success': []}
     log_data['labels'] = list(reversed([(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(0, 7)]))
     for label in log_data['labels']:
         log_data['devices'].append(len(Log.query.filter_by(
@@ -39,6 +39,10 @@ def home():
         log_data['firms'].append(len(Log.query.filter_by(
             timestamp=label,
             type='upload'
+        ).all()))
+        log_data['success'].append(len(Log.query.filter_by(
+            timestamp=label,
+            type='success'
         ).all()))
     return render_template('index.html', log_data=log_data)
 
@@ -98,10 +102,22 @@ def upload():
                 key = random_key(),
                 hash = hash_file(_route)
             )
-        
             db.session.add(newfile)
             db.session.commit()
             
+            # logging
+            newlog = Log(
+                type='upload',
+                timestamp=datetime.now().strftime('%Y-%m-%d'),
+                json={
+                    'route': newfile.route,
+                    'hash': newfile.hash,
+                    'timestamp':datetime.now()
+                }
+            )
+            db.session.add(newlog)
+            db.session.commit()
+
             # 트랜잭션 해시
             with open('./firmware_server/static/config.json') as f:
                 json_data = json.loads(f.read())
@@ -140,11 +156,25 @@ def download(file_id):
         }}, sort_keys=True, indent=4)
     return json.dumps({'error': {'code': 401, 'message': 'Wrong login credentials'}}, sort_keys=True, indent=4)
 
-@app.route('/check/<file_id>/<file_hash>', methods=['POST'])
+@app.route('/check/<file_id>', methods=['POST'])
 def check(file_id):
     file_id = int(file_id)
     thisfile = File.query.get(file_id)
-    if thisfile.hash != file_hash:
+    if thisfile.hash != request.form.get('hash'):
         return 'False'
+
+    # log success
+    newlog = Log(
+        type='success',
+        timestamp=datetime.now().strftime('%Y-%m-%d'),
+        json={
+            'route': thisfile.route,
+            'hash': thisfile.hash,
+            'timestamp':datetime.now()
+        }
+    )
+    db.session.add(newlog)
+    db.session.commit()
+
     return 'True'
     
