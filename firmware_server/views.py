@@ -5,14 +5,7 @@ from flask import (
     render_template,
     redirect,
     request,
-    url_for,
-    session
-)
-from flask_login import (
-    current_user, 
-    login_user,
-    logout_user,
-    login_required
+    url_for
 )
 from werkzeug import secure_filename
 from urllib.parse import urljoin
@@ -21,10 +14,6 @@ import os, os.path, json
 
 from firmware_server.klaytn import *
 klay = Klaytn('http://ubuntu.hanukoon.com:8551/')
-
-@app.before_request
-def session_config():
-    session.permanent = True # permanent session
 
 @app.route('/')
 def home():

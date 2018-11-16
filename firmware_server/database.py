@@ -1,7 +1,5 @@
-from flask_login import UserMixin
-from firmware_server import db, loginManager
+from firmware_server import db
 from datetime import datetime
-from passlib.hash import pbkdf2_sha256
 
 class Device(db.Model):
     __tablename__ = 'Device'
