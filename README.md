@@ -7,6 +7,7 @@ Upload firmware and update IoT device
 Register device information(`name`, `wallet`) -> table `Device`
 
 ### Web
+http://0.0.0.0/register
 
 ### API
 POST, `/register`
@@ -22,6 +23,7 @@ POST, `/register`
 Upload firmware file, choose devices 
 
 ### Web
+http://0.0.0.0/upload
 
 ### API
 POST, `/upload`
