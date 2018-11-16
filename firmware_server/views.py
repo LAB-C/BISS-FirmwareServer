@@ -16,6 +16,7 @@ from flask_login import (
 )
 from werkzeug import secure_filename
 from urllib.parse import urljoin
+from datetime import date, datetime, timedelta
 import os, os.path, json
 
 from firmware_server.klaytn import *
@@ -27,7 +28,14 @@ def session_config():
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    today = date.today()
+    labels = list(reversed([(today - timedelta(days=i)) for i in range(0, 7)]))
+    values = []
+    print(Log.query.all())
+    print(labels)
+    for label in labels:
+        values.append(len(Log.query.filter_by(timestamp=label).all()))
+    return render_template('index.html', labels=labels, values=values)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -36,15 +44,26 @@ def register():
         wallet = request.form.get('wallet')
         if len(wallet) != 42:
             return 'Not vaild wallet address'
-        try:
-            newdevice = Device(
-                name=request.form.get('name'),
-                wallet=wallet
-            )
-            db.session.add(newdevice)
-            db.session.commit()
-        except:
-            return 'Error'
+        # try:
+        newdevice = Device(
+            name=request.form.get('name'),
+            wallet=wallet
+        )
+        db.session.add(newdevice)
+        db.session.commit()
+        # except:
+            # return 'Error'
+        newlog = Log(
+            type='register',
+            timestamp=datetime.now().strftime('%Y-%m-%d'),
+            json={
+                'name':newdevice.name, 
+                'wallet':newdevice.wallet, 
+                'timestamp':datetime.now()
+            }
+        )
+        db.session.add(newlog)
+        db.session.commit()
         return 'Success<br>name: ' + newdevice.name + '<br>wallet: ' + newdevice.wallet
     return render_template('register.html')
     
@@ -52,7 +71,10 @@ def register():
 def upload():
     # list of devices, file
     if request.method == 'POST':
-        file = request.files['file']
+        try:
+            file = request.files['file']
+        except:
+            return json.dumps({'error': {'code': 400, 'message': 'No file'}}, sort_keys=True, indent=4)
         if file:
             # 파일경로와 랜덤키
             filename = secure_filename(file.filename)
@@ -97,7 +119,10 @@ def upload():
 
 @app.route('/download/<file_id>', methods=['POST'])
 def download(file_id):
-    file_id = int(file_id)
+    try:
+        file_id = int(file_id)
+    except:
+        return json.dumps({'error': {'code': 400, 'message': 'No '}}, sort_keys=True, indent=4)        
     # check if credentials are vaild
     key = request.json['key']
     thisfile = File.query.get(file_id)
