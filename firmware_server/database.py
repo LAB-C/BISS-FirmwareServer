@@ -8,6 +8,7 @@ class Device(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
     wallet = db.Column(db.String, unique=True, nullable=False)
+    update = db.Column(db.Integer, unique=False, nullable=False)
 
     def __repr__(self):
         return '<Device %r>' % self.name

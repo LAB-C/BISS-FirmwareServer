@@ -69,7 +69,7 @@ Client hashes recived file and check with hash in server DB
 - 이때 비교 결과가 True여야 success 로그가 남음(나중에 7단계로 옮기자)
 
 ### API
-POST, `/check/<file_id>`
+POST, `/check/hash/<file_id>`
 
 ```json
 {

@@ -56,7 +56,8 @@ def register():
         # try:
         newdevice = Device(
             name=request.form.get('name'),
-            wallet=wallet
+            wallet=wallet,
+            update=0
         )
         db.session.add(newdevice)
         db.session.commit()
@@ -156,8 +157,19 @@ def download(file_id):
         }}, sort_keys=True, indent=4)
     return json.dumps({'error': {'code': 401, 'message': 'Wrong login credentials'}}, sort_keys=True, indent=4)
 
-@app.route('/check/<file_id>', methods=['POST'])
-def check(file_id):
+@app.route('/check/update', methods=['POST'])
+def check_update():
+    device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
+    if device.update == 0: # nothing to update
+        return json.dumps({'message': 'Nothing to update'}, sort_keys=True, indent=4)
+    updated = File.query.get(device.update)
+    return json.dumps({
+        'txHash': updated.txhash, 
+        'file_id': updated.id
+    }, sort_keys=True, indent=4)
+    
+@app.route('/check/hash/<file_id>', methods=['POST'])
+def check_hash(file_id):
     file_id = int(file_id)
     thisfile = File.query.get(file_id)
     if thisfile.hash != request.form.get('hash'):
