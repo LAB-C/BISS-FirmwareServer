@@ -1,11 +1,14 @@
-<!-- <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.js"></script>
+<head>
+    <title>BISS Firmware Server</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='./css/style.css') }}">
+    <script src="{{ url_for('static', filename='./js/Chart.js') }}"></script>
+</head>
 <body>
-    <ul>
-        <li><a href="{{ url_for('upload') }}">upload firmware</a></li>
-        <li><a href="{{ url_for('register') }}">register device</a></li>
-    </ul>
-    <div style="position: relative; height:40vh; width:80vw">
+    <div class="btn-wrap">
+        <a class="btn upload" href="{{ url_for('upload') }}">upload firmware</a>
+        <a class="btn register" href="{{ url_for('register') }}">register device</a>
+    </div>
+    <div class="chart-wrap">
         <canvas id="chart"></canvas>
     </div>
 <script>
@@ -25,7 +28,7 @@
                 label: '업로드된 펌웨어 파일 수',
                 data: {{ log_data['firms']|safe }},
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255,99,132,1)',
+                borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1
             }, {
                 type: 'line',
@@ -48,5 +51,5 @@
         }
     };
     var chart = new Chart(document.getElementById("chart"), chartDefault);
- </script>
+</script>
 </body>
