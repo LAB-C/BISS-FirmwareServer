@@ -85,6 +85,10 @@ def upload():
             file = request.files['file']
         except:
             return json.dumps({'error': {'code': 400, 'message': 'No file'}}, sort_keys=True, indent=4)
+        try:
+            devices = [Device.query.filter_by(name=name).first() for name in request.form.getlist('devices')]
+        except:
+            return json.dumps({'error': {'code': 400, 'message': 'No devices specified'}}, sort_keys=True, indent=4)
         if file:
             # 파일경로와 랜덤키
             filename = secure_filename(file.filename)
@@ -131,8 +135,11 @@ def upload():
                 return json.dumps({'error': {'code': 500, 'message': 'Error while sending'}}, sort_keys=True, indent=4)
             # save file in blockchain, get txHash
             newfile.txhash = _txhash
-        
             db.session.commit() 
+
+            for device in devices:
+                device.update = newfile.id
+            db.session.commit()             
 
             return json.dumps({'success': {'txhash': _txhash, 'file_id': newfile.id}}, sort_keys=True, indent=4)
         else:
@@ -164,6 +171,7 @@ def check_update():
         return json.dumps({'message': 'Nothing to update'}, sort_keys=True, indent=4)
     updated = File.query.get(device.update)
     return json.dumps({
+        'message': 'Update available',
         'txHash': updated.txhash, 
         'file_id': updated.id
     }, sort_keys=True, indent=4)
@@ -186,6 +194,10 @@ def check_hash(file_id):
         }
     )
     db.session.add(newlog)
+    db.session.commit()
+
+    device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
+    device.update = 0
     db.session.commit()
 
     return 'True'

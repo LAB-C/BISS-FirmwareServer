@@ -73,7 +73,8 @@ POST, `/check/hash/<file_id>`
 
 ```json
 {
-    "hash": "4e6e424c9e2c7ff4386616cba7bd6b8f"
+    "hash": "4e6e424c9e2c7ff4386616cba7bd6b8f",
+    "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
 }
 ```
 
