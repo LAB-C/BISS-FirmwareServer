@@ -29,13 +29,18 @@ def session_config():
 @app.route('/')
 def home():
     today = date.today()
-    labels = list(reversed([(today - timedelta(days=i)) for i in range(0, 7)]))
-    values = []
-    print(Log.query.all())
-    print(labels)
-    for label in labels:
-        values.append(len(Log.query.filter_by(timestamp=label).all()))
-    return render_template('index.html', labels=labels, values=values)
+    log_data = {'labels': [], 'devices': [], 'firms': []}
+    log_data['labels'] = list(reversed([(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(0, 7)]))
+    for label in log_data['labels']:
+        log_data['devices'].append(len(Log.query.filter_by(
+            timestamp=label, 
+            type='register'
+        ).all()))
+        log_data['firms'].append(len(Log.query.filter_by(
+            timestamp=label,
+            type='upload'
+        ).all()))
+    return render_template('index.html', log_data=log_data)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
