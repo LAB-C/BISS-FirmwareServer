@@ -153,11 +153,18 @@ def download(file_id):
         }}, sort_keys=True, indent=4)
     return json.dumps({'error': {'code': 401, 'message': 'Wrong login credentials'}}, sort_keys=True, indent=4)
 
+@app.route('/check/exist', methods=['POST'])
+def check_exist():
+    device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
+    if not device:
+        return json.dumps({ 'message': False }, indent=4)        
+    return json.dumps({ 'message': True }, indent=4)
+    
 @app.route('/check/update', methods=['POST'])
 def check_update():
     device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
     if device.update == 0: # nothing to update
-        return json.dumps({'message': 'Nothing to update'}, sort_keys=True, indent=4)
+        return json.dumps({'message': 'Nothing to update'}, indent=4)
     updated = File.query.get(device.update)
     return json.dumps({
         'message': 'Update available',
@@ -186,7 +193,8 @@ def check_hash(file_id):
     db.session.commit()
 
     device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
-    device.update = 0
+    if device.update == thisfile.id:
+        device.update = 0
     db.session.commit()
 
     return 'True'

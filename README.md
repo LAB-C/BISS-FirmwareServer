@@ -10,6 +10,17 @@ Register device information(`name`, `wallet`) -> table `Device`
 http://0.0.0.0/register
 
 ### API
+
+#### Check existence
+POST, `check/exist`
+
+```json
+{
+    "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
+}
+```
+
+#### Register device
 POST, `/register`
 
 ```json
