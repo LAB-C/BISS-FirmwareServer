@@ -45,7 +45,15 @@ Append `txHash` in current file row when `receipt` returns
 Server sends `txHash`, `file_id` to client API(client checks updates with certain time)
 
 - 각 디바이스는 자신의 인증 정보를 이용하여 일정 시간마다 업데이트 사항이 있는지를 체크
-- 내일 client API를 만들자
+
+### API
+POST, `/check/update`
+
+```json
+{
+    "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
+}
+```
 
 ## 5. 디바이스가 public URL을 구해 다운로드
 Client uses `file_id` and `txHash` to get public URL and can download file
