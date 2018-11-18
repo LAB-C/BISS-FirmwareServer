@@ -3,6 +3,13 @@
 
 Upload firmware and update IoT device
 
+# Todo
+
+- [ ] 서버 API는 `blueprint`로 분리하기
+- [ ] 컨트랙트 다시 짜기(스마트컨트랙트를 제대로 이용하고 있지 않음)
+
+# Workflow
+
 ## 1. 디바이스 정보 등록
 Register device information(`name`, `wallet`) -> table `Device`
 
@@ -12,7 +19,7 @@ http://0.0.0.0/register
 ### API
 
 #### Check existence
-POST, `check/exist`
+POST, `Content-Type: application/json`, `/api/check/exist`
 
 ```json
 {
@@ -21,7 +28,7 @@ POST, `check/exist`
 ```
 
 #### Register device
-POST, `/register`
+POST, `Content-Type: application/json`, `/api/register`
 
 ```json
 {
@@ -36,16 +43,6 @@ Upload firmware file, choose devices
 ### Web
 http://0.0.0.0/upload
 
-### API
-POST, `/upload`
-
-```json
-{
-    "file": file,
-    "devices": ["somedevice1", "somedevice2", "somedevice3"]
-}
-```
-
 ## 3. 블록체인에 랜덤 키 넣고 전송, DB에 파일 키와 URL, 해시 저장
 Put random key(`utils.random_key()`) in blockchain, save `key`/`route`(route is URL location in server)/`filehash` in DB -> table `File`
 
@@ -58,7 +55,7 @@ Server sends `txHash`, `file_id` to client API(client checks updates with certai
 - 각 디바이스는 자신의 인증 정보를 이용하여 일정 시간마다 업데이트 사항이 있는지를 체크
 
 ### API
-POST, `/check/update`
+POST, `Content-Type: application/json`, `/api/check/update`
 
 ```json
 {
@@ -73,7 +70,7 @@ Client uses `file_id` and `txHash` to get public URL and can download file
 - 해당 URL을 이용해서 펌웨어 파일을 다운로드 받을 수 있음
 
 ### API
-POST, `/download/<file_id>`
+POST, `Content-Type: application/json`, `/api/download/<file_id>`
 
 ```json
 {
@@ -88,7 +85,7 @@ Client hashes recived file and check with hash in server DB
 - 이때 비교 결과가 True여야 success 로그가 남음(나중에 7단계로 옮기자)
 
 ### API
-POST, `/check/hash/<file_id>`
+POST, `Content-Type: application/json`, `/api/check/hash/<file_id>`
 
 ```json
 {
