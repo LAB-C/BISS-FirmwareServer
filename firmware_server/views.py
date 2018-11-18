@@ -139,7 +139,7 @@ def upload():
 def api_register(): # when move to blueprint in future, change method name to 'register'
     # name, wallet
     if request.method == 'POST':
-        wallet = request.('wallet')
+        wallet = request.json.get('wallet')
         if len(wallet) != 42:
             return json.dumps({'error': 'Not vaild wallet address'})
         newdevice = Device(
