@@ -157,17 +157,17 @@ def download(file_id):
 def check_exist():
     device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
     if not device:
-        return json.dumps({ 'message': False }, indent=4)        
-    return json.dumps({ 'message': True }, indent=4)
+        return json.dumps({ 'exist': False }, indent=4)        
+    return json.dumps({ 'exist': True }, indent=4)
     
 @app.route('/check/update', methods=['POST'])
 def check_update():
     device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
     if device.update == 0: # nothing to update
-        return json.dumps({'message': 'Nothing to update'}, indent=4)
+        return json.dumps({'update': False}, indent=4)
     updated = File.query.get(device.update)
     return json.dumps({
-        'message': 'Update available',
+        'update': True,
         'txHash': updated.txhash, 
         'file_id': updated.id
     }, sort_keys=True, indent=4)
