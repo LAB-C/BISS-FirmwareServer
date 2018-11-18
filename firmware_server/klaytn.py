@@ -1,4 +1,4 @@
-import requests, subprocess
+import requests, subprocess, json
 
 class Klaytn:
     def __init__(self, url):
@@ -25,3 +25,11 @@ class Klaytn:
         if 'Error' in str(output):
             return False
         return output.strip().decode()
+    
+    def getInputData(self, txhash):
+        url = 'https://apiscope.klaytn.com/api/transaction/' + txhash
+        res = json.loads(requests.get(url).text)
+        print(res)
+        if res['status'] == 'FAIL': 
+            return False
+        return bytes.fromhex(res['result']['input'][2:]).replace(b'\x00', b'').replace(b'6F\xd0! \x1e', b'').decode()
