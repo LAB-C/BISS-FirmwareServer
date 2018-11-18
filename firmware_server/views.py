@@ -113,11 +113,10 @@ def upload():
             db.session.commit()
 
             # 트랜잭션 해시
-            with open('./firmware_server/static/config.json') as f:
+            with open('./info.json') as f:
                 json_data = json.loads(f.read())
                 wallet = json_data['wallet']
-                passphrase = json_data['passphrase']
-            klay.unlockAccount(wallet, passphrase, 3000)
+            klay.unlockAccount(wallet, '_labc', 3000)
             print(wallet, newfile.key)
             _txhash = klay.sendData(wallet, newfile.key + '-' + newfile.hash)
             if not _txhash:
