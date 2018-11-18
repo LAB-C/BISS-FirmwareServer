@@ -65,7 +65,7 @@ def register():
         db.session.commit()
         return 'Success<br>name: ' + newdevice.name + '<br>wallet: ' + newdevice.wallet
     return render_template('register.html')
-    
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     # list of devices, file
@@ -135,67 +135,103 @@ def upload():
             return json.dumps({'error': {'code': 400, 'message': 'No file'}}, sort_keys=True, indent=4)
     return render_template('upload.html', devices=Device.query.all())
 
-@app.route('/download/<file_id>', methods=['POST'])
+@app.route('/api/register', methods=['GET', 'POST'])
+def api_register(): # when move to blueprint in future, change method name to 'register'
+    # name, wallet
+    if request.method == 'POST':
+        wallet = request.('wallet')
+        if len(wallet) != 42:
+            return json.dumps({'error': 'Not vaild wallet address'})
+        newdevice = Device(
+            name=request.json.get('name'),
+            wallet=wallet,
+            update=0
+        )
+        db.session.add(newdevice)
+        db.session.commit()
+        newlog = Log(
+            type='register',
+            timestamp=datetime.now().strftime('%Y-%m-%d'),
+            json={
+                'name':newdevice.name, 
+                'wallet':newdevice.wallet, 
+                'timestamp':datetime.now()
+            }
+        )
+        db.session.add(newlog)
+        db.session.commit()
+        return json.dumps({'success' : {'name': newdevice.name, 'wallet': newdevice.wallet}})
+    return json.dumps({'error': 'Method Not Allowed'})
+
+@app.route('/api/download/<file_id>', methods=['GET', 'POST'])
 def download(file_id):
-    try:
-        file_id = int(file_id)
-    except:
-        return json.dumps({'error': {'code': 400, 'message': 'No '}}, sort_keys=True, indent=4)        
-    # check if credentials are vaild
-    key = request.json['key']
-    thisfile = File.query.get(file_id)
-    if key == thisfile.key:
-        return json.dumps({'result': {
-            'url': urljoin(
-                request.url_root,
-                thisfile.route.replace('firmware_server', '')
-            )
-        }}, sort_keys=True, indent=4)
-    return json.dumps({'error': {'code': 401, 'message': 'Wrong login credentials'}}, sort_keys=True, indent=4)
+    if request.method == 'POST':
+        try:
+            file_id = int(file_id)
+        except:
+            return json.dumps({'error': {'code': 400, 'message': 'No '}}, sort_keys=True, indent=4)        
+        # check if credentials are vaild
+        key = request.json['key']
+        thisfile = File.query.get(file_id)
+        if key == thisfile.key:
+            return json.dumps({'result': {
+                'url': urljoin(
+                    request.url_root,
+                    thisfile.route.replace('firmware_server', '')
+                )
+            }}, sort_keys=True, indent=4)
+        return json.dumps({'error': {'code': 401, 'message': 'Wrong login credentials'}}, sort_keys=True, indent=4)
+    return json.dumps({'error': 'Method Not Allowed'})    
 
-@app.route('/check/exist', methods=['POST'])
+@app.route('/api/check/exist', methods=['GET', 'POST'])
 def check_exist():
-    device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
-    if not device:
-        return json.dumps({ 'exist': False }, indent=4)        
-    return json.dumps({ 'exist': True }, indent=4)
+    if request.method == 'POST':
+        device = Device.query.filter_by(wallet=request.json.get('wallet')).first()
+        if not device:
+            return json.dumps({ 'exist': False }, indent=4)        
+        return json.dumps({ 'exist': True }, indent=4)
+    return json.dumps({'error': 'Method Not Allowed'})    
     
-@app.route('/check/update', methods=['POST'])
+@app.route('/api/check/update', methods=['GET', 'POST'])
 def check_update():
-    device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
-    if device.update == 0: # nothing to update
-        return json.dumps({'update': False}, indent=4)
-    updated = File.query.get(device.update)
-    return json.dumps({
-        'update': True,
-        'txHash': updated.txhash, 
-        'file_id': updated.id
-    }, sort_keys=True, indent=4)
+    if request.method == 'POST':
+        device = Device.query.filter_by(wallet=request.json.get('wallet')).first()
+        if device.update == 0: # nothing to update
+            return json.dumps({'update': False}, indent=4)
+        updated = File.query.get(device.update)
+        return json.dumps({
+            'update': True,
+            'txHash': updated.txhash, 
+            'file_id': updated.id
+        }, sort_keys=True, indent=4)
+    return json.dumps({'error': 'Method Not Allowed'})    
     
-@app.route('/check/hash/<file_id>', methods=['POST'])
+@app.route('/api/check/hash/<file_id>', methods=['GET', 'POST'])
 def check_hash(file_id):
-    file_id = int(file_id)
-    thisfile = File.query.get(file_id)
-    if thisfile.hash != request.form.get('hash'):
-        return 'False'
+    if request.method == 'POST':
+        file_id = int(file_id)
+        thisfile = File.query.get(file_id)
+        if thisfile.hash != request.json.get('hash'):
+            return json.dumps({'equal': False})
 
-    # log success
-    newlog = Log(
-        type='success',
-        timestamp=datetime.now().strftime('%Y-%m-%d'),
-        json={
-            'route': thisfile.route,
-            'hash': thisfile.hash,
-            'timestamp':datetime.now()
-        }
-    )
-    db.session.add(newlog)
-    db.session.commit()
+        # log success
+        newlog = Log(
+            type='success',
+            timestamp=datetime.now().strftime('%Y-%m-%d'),
+            json={
+                'route': thisfile.route,
+                'hash': thisfile.hash,
+                'timestamp':datetime.now()
+            }
+        )
+        db.session.add(newlog)
+        db.session.commit()
 
-    device = Device.query.filter_by(wallet=request.form.get('wallet')).first()
-    if device.update == thisfile.id:
-        device.update = 0
-    db.session.commit()
+        device = Device.query.filter_by(wallet=request.json.get('wallet')).first()
+        if device.update == thisfile.id:
+            device.update = 0
+        db.session.commit()
 
-    return 'True'
+        return json.dumps({'equal': True})
+    return json.dumps({'error': 'Method Not Allowed'})    
     
