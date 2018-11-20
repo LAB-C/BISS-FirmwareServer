@@ -1,5 +1,5 @@
 const info = require('./../info.json');
-const wallet = info['device']['wallet'];
+const wallet = info['wallet'];
 
 const args = process.argv;
 const command = args[2];
