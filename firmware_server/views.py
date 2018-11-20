@@ -118,13 +118,13 @@ def upload():
                 wallet = json_data['wallet']
             klay.unlockAccount(wallet, '_labc', 3000)
             print(wallet, newfile.key)
-            _txhash = klay.sendKey(newfile.key)
+            _txhash = klay.sendKey(newfile.id, newfile.key)
             if not _txhash:
                 return json.dumps({'error': {'code': 500, 'message': 'Error while sending'}}, sort_keys=True, indent=4)
             
             # send hash to blockchain 
             print(wallet, newfile.hash)
-            klay.sendHash(newfile.hash)
+            klay.sendHash(newfile.id, newfile.hash)
             # don't have to receive txHash
             
             # save file in blockchain, get txHash

@@ -25,15 +25,15 @@ class Klaytn:
             return False
         return result
 
-    def sendKey(self, data):
-        output = subprocess.Popen(['node', 'firmware_server/send.js', 'sendKey', data], stdout=subprocess.PIPE ).communicate()[0]
+    def sendKey(self, file_id, key):
+        output = subprocess.Popen(['node', 'firmware_server/send.js', 'sendKey', str(file_id), key], stdout=subprocess.PIPE ).communicate()[0]
         result = json.loads(output.strip().decode())['result']
         if 'Error' in result:
             return False
         return result
 
-    def sendHash(self, data):
-        output = subprocess.Popen(['node', 'firmware_server/send.js', 'sendHash', data], stdout=subprocess.PIPE ).communicate()[0]
+    def sendHash(self, file_id, hash):
+        output = subprocess.Popen(['node', 'firmware_server/send.js', 'sendHash', str(file_id), hash], stdout=subprocess.PIPE ).communicate()[0]
         result = json.loads(output.strip().decode())['result']
         if 'Error' in result:
             return False
