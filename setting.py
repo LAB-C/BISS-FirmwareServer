@@ -28,7 +28,11 @@ if __name__ == '__main__':
                 logging.debug('info.json: file found')
                 info = json.load(f)
                 logging.info(info)
-                logging.info('Wallet: ' + info['wallet'])
+                wallet = info['wallet']
+                logging.info('Wallet: ' + wallet)
+
+                klay.unlockAccount(wallet, '_labc', 30000)
+                logging.info('Unlocked wallet: ' + wallet)
         except:
             logging.debug('info.json: parsing error -> calling make_info()')
             info = make_info()
