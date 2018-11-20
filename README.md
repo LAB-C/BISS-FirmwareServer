@@ -3,6 +3,13 @@
 
 Upload firmware and update IoT device
 
+# Install 
+```bash
+$ git clone https://github.com/LAB-C/BISS-FirmwareServer
+$ cd BISS-FirmwareServer
+$ git submodule update --init --recursive
+```
+
 # Todo
 
 - [ ] 서버 API는 `blueprint`로 분리하기
