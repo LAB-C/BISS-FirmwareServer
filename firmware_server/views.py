@@ -112,15 +112,20 @@ def upload():
             db.session.add(newlog)
             db.session.commit()
 
-            # 트랜잭션 해시
+            # send key to blockchain
             with open('./info.json') as f:
                 json_data = json.loads(f.read())
                 wallet = json_data['wallet']
             klay.unlockAccount(wallet, '_labc', 3000)
             print(wallet, newfile.key)
-            _txhash = klay.sendData(wallet, newfile.key)
+            _txhash = klay.sendKey(newfile.key)
             if not _txhash:
                 return json.dumps({'error': {'code': 500, 'message': 'Error while sending'}}, sort_keys=True, indent=4)
+            
+            # send hash to blockchain 
+            print(wallet, newfile.hash)
+            klay.sendHash(newfile.hash)
+            # don't have to receive txHash
             
             # save file in blockchain, get txHash
             newfile.txhash = _txhash
@@ -128,7 +133,7 @@ def upload():
 
             for device in devices:
                 device.update = newfile.id
-            db.session.commit()             
+            db.session.commit() 
 
             return json.dumps({'success': {'txhash': _txhash, 'file_id': newfile.id}}, sort_keys=True, indent=4)
         else:

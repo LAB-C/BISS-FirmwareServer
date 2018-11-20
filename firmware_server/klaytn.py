@@ -18,13 +18,26 @@ class Klaytn:
     def unlockAccount(self, address, passphrase, duration):
         return True if self._request('personal_unlockAccount', params=[address, passphrase, duration])=='true' else False
 
-    def sendData(self, wallet, data):
-        print(wallet, data)
-        output = subprocess.Popen(['node', 'firmware_server/send.js', wallet, data, self.url], stdout=subprocess.PIPE ).communicate()[0]
-        print(output)
-        if 'Error' in str(output):
+    def sendData(self, data):
+        output = subprocess.Popen(['node', 'firmware_server/send.js', 'data', data], stdout=subprocess.PIPE ).communicate()[0]
+        result = json.loads(output.strip().decode())['result']
+        if 'Error' in result:
             return False
-        return output.strip().decode()
+        return result
+
+    def sendKey(self, data):
+        output = subprocess.Popen(['node', 'firmware_server/send.js', 'sendKey', data], stdout=subprocess.PIPE ).communicate()[0]
+        result = json.loads(output.strip().decode())['result']
+        if 'Error' in result:
+            return False
+        return result
+
+    def sendHash(self, data):
+        output = subprocess.Popen(['node', 'firmware_server/send.js', 'sendHash', data], stdout=subprocess.PIPE ).communicate()[0]
+        result = json.loads(output.strip().decode())['result']
+        if 'Error' in result:
+            return False
+        return result
     
     def getInputData(self, txhash):
         url = 'https://apiscope.klaytn.com/api/transaction/' + txhash
