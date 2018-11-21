@@ -14,5 +14,5 @@ def hash_file(filepath):
             buf = f.read(65536)
     return md5_hash.hexdigest()
 
-def random_key(length=30):
+def random_key(length=10):
     return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(length))
