@@ -1,32 +1,30 @@
 # BISS Firmware Server
 ![index screenshot](./assets/index.png)
 
-Upload firmware and update IoT device
+펌웨어 업로드 및 디바이스 펌웨어 업데이트
 
-# Install 
+# 설치
 ```bash
 $ git clone https://github.com/LAB-C/BISS-FirmwareServer
 $ cd BISS-FirmwareServer
 $ git submodule update --init --recursive
+$ pip3 install -r requirements.txt
 ```
 
-# Todo
-
-- [ ] 서버 API는 `blueprint`로 분리하기
-- [ ] 컨트랙트 다시 짜기(스마트컨트랙트를 제대로 이용하고 있지 않음)
-
-# Workflow
+# 워크플로우
 
 ## 1. 디바이스 정보 등록
-Register device information(`name`, `wallet`) -> table `Device`
+- Register device information(`name`, `wallet`) -> table `Device`
+- Web: `/register`
 
-### Web
-http://0.0.0.0/register
+## API
 
-### API
-
-#### Check existence
+### Check existence
 POST, `Content-Type: application/json`, `/api/check/exist`
+
+서버에 해당 wallet이 존재하는지 확인한다.
+
+#### Request
 
 ```json
 {
@@ -34,8 +32,28 @@ POST, `Content-Type: application/json`, `/api/check/exist`
 }
 ```
 
-#### Register device
+| 이름        | 타입      | 설명            |
+| :--------- | :------- | :------------- |
+| `wallet`   | `string` | Klaytn 지갑 주소 |
+
+#### Response
+
+```json
+{
+    "exist": false
+}
+```
+
+| 이름     | 타입     | 설명            |
+| :------ | :------ | :------------- |
+| `exist` | `bool`  | `wallet`이 DB에 존재하는 경우 `true`, 아닐 경우 `false` |
+
+### Register device
 POST, `Content-Type: application/json`, `/api/register`
+
+`name`을 이름으로 하고 Klaytn 지갑 주소 `wallet`을 지니는 디바이스를 등록합니다.
+
+#### Request
 
 ```json
 {
@@ -44,11 +62,56 @@ POST, `Content-Type: application/json`, `/api/register`
 }
 ```
 
-## 2. 펌웨어 업로드, 업로드할 디바이스 선택
-Upload firmware file, choose devices 
+| 이름        | 타입      | 설명            |
+| :--------- | :------- | :------------- |
+| `name`     | `string` | 디바이스 이름     |
+| `wallet`   | `string` | 디바이스 Klaytn 지갑 주소 |
 
-### Web
-http://0.0.0.0/upload
+#### Response
+
+- 정상 처리 시:
+
+```json
+{
+    "success" : {
+        "name": "somedevice1", 
+        "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
+    }
+}
+```
+
+- 에러 발생 시:
+
+```json
+{
+    "error": "Not valid wallet address"
+}
+```
+
+> 추후 수정 방법:
+> ```json
+> {
+>     "success" : true,
+>     "name": "somedevice1", 
+>     "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
+>
+> },
+> {
+>     "success" : false,
+>     "error": "Not valid wallet address"
+> }
+> ```
+
+| 이름       | 타입      | 설명            |
+| :-------- | :------- | :------------- |
+| `success` | `bool`   | 성공 여부        |
+| `name`    | `string` | 디바이스 이름     |
+| `wallet`  | `string` | 디바이스 Klaytn 지갑 주소 |
+| `error`   | `string` | 에러 메세지      |
+
+## 2. 펌웨어 업로드, 업로드할 디바이스 선택
+- Upload firmware file, choose devices 
+- Web: `/upload`
 
 ## 3. 블록체인에 랜덤 키 넣고 전송, DB에 파일 키와 URL, 해시 저장
 Put random key(`utils.random_key()`) in blockchain, save `key`/`route`(route is URL location in server)/`filehash` in DB -> table `File`

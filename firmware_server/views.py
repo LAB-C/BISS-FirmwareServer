@@ -43,7 +43,7 @@ def register():
     if request.method == 'POST':
         wallet = request.form.get('wallet')
         if len(wallet) != 42:
-            return 'Not vaild wallet address'
+            return 'Not valid wallet address'
         # try:
         newdevice = Device(
             name=request.form.get('name'),

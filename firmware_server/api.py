@@ -19,7 +19,7 @@ def api_register(): # when move to blueprint in future, change method name to 'r
     if request.method == 'POST':
         wallet = request.json.get('wallet')
         if len(wallet) != 42:
-            return json.dumps({'error': 'Not vaild wallet address'})
+            return json.dumps({'error': 'Not valid wallet address'})
         newdevice = Device(
             name=request.json.get('name'),
             wallet=wallet,
@@ -48,7 +48,7 @@ def download(file_id):
             file_id = int(file_id)
         except:
             return json.dumps({'error': {'code': 400, 'message': 'No '}}, sort_keys=True, indent=4)        
-        # check if credentials are vaild
+        # check if credentials are valid
         key = request.json['key']
         thisfile = File.query.get(file_id)
         if key == thisfile.key:
