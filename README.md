@@ -18,6 +18,16 @@ $ pip3 install -r requirements.txt
 - Web: `/register`
 
 ## API
+- Application
+  - check
+    - exist
+  - register 
+  - upload
+- Device
+  - check
+    - update
+    - hash
+  - download
 
 ### Check existence
 POST, `Content-Type: application/json`, `/api/check/exist`
