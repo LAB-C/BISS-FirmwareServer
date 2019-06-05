@@ -20,3 +20,34 @@
 ## API
 
 ## Models
+
+### Device
+```json
+{
+    "_id": "String",
+    "name": "String",
+    "wallet": "String",
+    "update": "String"
+}
+```
+
+### File
+```json
+{
+    "_id": "String",
+    "route": "String",
+    "key": "String",
+    "hash": "String",
+    "txHash": "String"
+}
+```
+
+### Log
+```json
+{
+    "_id": "String",
+    "timestamp": 0,
+    "type": "String",
+    "json": {}
+}
+```
