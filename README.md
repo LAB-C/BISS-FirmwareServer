@@ -24,30 +24,30 @@
 ### Device
 ```json
 {
-    "_id": "String",
-    "name": "String",
-    "wallet": "String",
-    "update": "String"
+    "_id": "string",
+    "name": "string",
+    "wallet": "string",
+    "update": "string"
 }
 ```
 
 ### File
 ```json
 {
-    "_id": "String",
-    "route": "String",
-    "key": "String",
-    "hash": "String",
-    "txHash": "String"
+    "_id": "string",
+    "route": "string",
+    "key": "string",
+    "hash": "string",
+    "txHash": "string"
 }
 ```
 
 ### Log
 ```json
 {
-    "_id": "String",
+    "_id": "string",
     "timestamp": 0,
-    "type": "String",
+    "type": "string",
     "json": {}
 }
 ```
