@@ -1,5 +1,6 @@
-Flask == 1.0.2
-sqlalchemy == 1.2.5
-flask_sqlalchemy == 2.3.2
-Werkzeug == 0.14.1
-requests >= 2.20.0
+sanic
+sanic-openapi
+sanic-cors
+sanic-jwt-extended
+pytest
+pytest-sanic
