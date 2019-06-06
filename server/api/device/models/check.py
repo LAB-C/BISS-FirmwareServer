@@ -5,8 +5,8 @@ class UpdateRequestModel:
 
 class UpdateResponseModel:
     update = doc.Boolean('Update status')
+    id = doc.String('ID of firmware file')
     txhash = doc.String('Transaction hash of key')
-    file_id = doc.String('ID of firmware file')
 
 class HashRequestModel:
     hash = doc.String('MD5 Hash of downloaded file', required=True)

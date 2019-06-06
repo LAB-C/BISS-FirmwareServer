@@ -14,9 +14,30 @@ from bson import ObjectId
 @doc.consumes(UpdateRequestModel, content_type='application/json', location='body')
 @doc.produces(UpdateResponseModel, content_type='application/json', description='Successful')
 @doc.response(200, None, description='Success')
-@doc.response(500, None, description='Error while execution')
+@doc.response(404, None, description='No such device')
+@doc.response(500, None, description='Error while execution or no update found')
 async def check_update(request):
-    return res_json({})
+    wallet = request.json['wallet']
+    device = await request.app.db.devices.find_one({
+        'wallet': wallet
+    })
+    if not device:
+        abort(404)
+
+    if device['update']:
+        update = await request.app.db.updates.find_one({
+            '_id': ObjectId(device['update'])
+        })
+        if not update:
+            abort(500)
+        return res_json({
+            'update': True,
+            'id': str(update['_id']),
+            'txHash': update['txHash'],
+        })
+    return res_json({
+        'update': False
+    })
 
 @device_api.post('/check/hash/<file_id:str>')
 @doc.summary('Check firmware hash')
