@@ -6,6 +6,6 @@ app_api = Blueprint(
     strict_slashes=True
 )
 
-__import__('server.api.app.resources.check')
+__import__('server.api.app.resources.devices')
 __import__('server.api.app.resources.register')
 __import__('server.api.app.resources.upload')
