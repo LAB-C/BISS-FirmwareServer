@@ -16,6 +16,15 @@ def app():
 def test_cli(loop, app, sanic_client):
     return loop.run_until_complete(sanic_client(app))
 
+async def test_fixture_get_devices(test_cli):
+    ##### get devices #####
+    custom_log('GET DEVICES')
+    resp = await test_cli.get('/app/devices')
+    devices = await resp.json()
+    print(devices)
+    assert type(devices) == list
+    return devices
+
 async def test_fixture_devices(test_cli):
     wallet = '0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd'
 
@@ -37,15 +46,13 @@ async def test_fixture_devices(test_cli):
     print(device)
     assert type(device) == dict
 
-    ##### get devices #####
-    custom_log('GET DEVICES')
-    resp = await test_cli.get('/app/devices')
-    devices = await resp.json()
-    print(devices)
-    assert type(devices) == list
+    devices = await test_fixture_get_devices(test_cli)
     assert device in devices
     
     ##### delete device #####
     custom_log('DELETE DEVICE')
     resp = await test_cli.delete('/app/devices/{}'.format(wallet))
     assert resp.status == 200
+
+    devices = await test_fixture_get_devices(test_cli)
+    assert device not in devices
