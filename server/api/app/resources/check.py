@@ -9,14 +9,15 @@ from bson import ObjectId
 @doc.summary('Check device registeration')
 @doc.produces(CheckResponseModel, content_type='application/json', description='Successful')
 @doc.response(200, None, description='Success')
+@doc.response(404, None, description='No such device')
 @doc.response(500, None, description='Error while execution')
 async def check(request, wallet):
     try:
         device = await request.app.db.devices.find_one({
             'wallet': wallet
         })
-        return res_json({
-            'exist': bool(device)
-        })
+        if not device:
+            abort(404)
+        return res_json({})
     except:
         abort(500)
