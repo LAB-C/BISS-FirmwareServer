@@ -19,7 +19,9 @@ async def download(request):
     update = await request.app.db.updates.find_one({
         '_id': ObjectId(device['update'])
     })
-    if update['key'] !== request.json['key']:
+    if not update:
+        abort(404)
+    if update['key'] != request.json['key']:
         abort(400)
     return res_json({
         'url': urljoin(

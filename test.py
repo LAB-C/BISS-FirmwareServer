@@ -16,7 +16,7 @@ def app():
 def test_cli(loop, app, sanic_client):
     return loop.run_until_complete(sanic_client(app))
 
-async def test_fixture_get_devices(test_cli):
+async def test_fixture_device(test_cli):
     ##### get devices #####
     custom_log('GET DEVICES')
     resp = await test_cli.get('/app/devices')
