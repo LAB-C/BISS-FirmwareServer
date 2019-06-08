@@ -63,7 +63,7 @@ async def check_update(request):
 async def check_hash(request, file_id):
     # find update with given fileId
     update = await request.app.db.updates.find_one({
-        'fileId': ObjectId(file_id)
+        '_id': ObjectId(file_id)
     })
     if not update:
         abort(404)
