@@ -18,16 +18,6 @@
    3. Device updates itself if the response is valid
 
 ## API
-- Application
-  - check
-    - exist
-  - register 
-  - upload
-- Device
-  - check
-    - update
-    - hash
-  - download
 
 ## Models
 
