@@ -1,3 +1,0 @@
-[submodule "firmware_server/blockchain"]
-	path = firmware_server/blockchain
-	url = https://github.com/LAB-C/BISS-blockchain
