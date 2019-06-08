@@ -7,7 +7,10 @@ from sanic_openapi import doc
 
 @app_api.get('/devices')
 @doc.summary('List of devices')
-@doc.produces(DeviceListModel, content_type='application/json', description='Successful')
+@doc.produces(
+    DeviceListModel,
+    content_type='application/json',
+    description='Successful')
 @doc.response(200, None, description='Success')
 async def devices(request):
     devices = await request.app.db.devices.find({}).sort('_id').to_list(50)

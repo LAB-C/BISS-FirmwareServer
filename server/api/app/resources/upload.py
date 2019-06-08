@@ -44,14 +44,14 @@ async def upload(request):
     res = await request.app.db.updates.insert_one(update)
     if not res.acknowledged:
         abort(500)
-    
+
     # update device
     devices = request.json.get('devices')
     for device in devices:
         await request.app.db.devices.update({
             'name': device
         }, {
-            '$set': { 'update': update['key'] }
+            '$set': {'update': update['key']}
         })
 
     # save log
