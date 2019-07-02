@@ -1,178 +1,59 @@
 # BISS Firmware Server
-![index screenshot](./assets/index.png)
 
-펌웨어 업로드 및 디바이스 펌웨어 업데이트
+<p align="center">
+    <img alt="BISS-logo" src="./images/logo.png" width="600px">
+</p>
 
-# 설치
-```bash
-$ git clone https://github.com/LAB-C/BISS-FirmwareServer
-$ cd BISS-FirmwareServer
-$ git submodule update --init --recursive
-$ pip3 install -r requirements.txt
-```
+> 블록체인으로 만드는 안전한 IoT
 
-# 워크플로우
-
-## 1. 디바이스 정보 등록
-- Register device information(`name`, `wallet`) -> table `Device`
-- Web: `/register`
+## Workflow
+1. **\*** - Check existence and Register device
+2. **Application** - Upload firmware file, with device names to update2
+3. **Server**
+   1. Write random file key in blockchain
+   2. Save file ID, file key, file hash and download URL to DB
+   3. Update document with transaction hash when the receipt returns
+   4. Provide API with update status(with transaction hash and file ID) or emit some event to device
+4. **Device** - check for updates
+   1. Use the transaction hash to get the file key from the blockchain
+   2. Send found key with the file ID to server and receive the download URL
+   3. Download the firmware from the recieved URL
+5. **Device** - validation of downloaded firmware
+   1. Calculate the MD5 sum of the file and send validation request to server
+   2. Server compares the hash and (if correct) mark the upload as complete, respond to client
+   3. Device updates itself if the response is valid
 
 ## API
-- Application
-  - check
-    - exist
-  - register 
-  - upload
-- Device
-  - check
-    - update
-    - hash
-  - download
 
-### Check existence
-POST, `Content-Type: application/json`, `/api/check/exist`
+## Models
 
-서버에 해당 wallet이 존재하는지 확인한다.
-
-#### Request
-
+### Device
 ```json
 {
-    "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
+    "_id": "string",
+    "name": "string",
+    "wallet": "string",
+    "update": "string"
 }
 ```
 
-| 이름        | 타입      | 설명            |
-| :--------- | :------- | :------------- |
-| `wallet`   | `string` | Klaytn 지갑 주소 |
-
-#### Response
-
+### File
 ```json
 {
-    "exist": false
+    "_id": "string",
+    "route": "string",
+    "key": "string",
+    "hash": "string",
+    "txHash": "string"
 }
 ```
 
-| 이름     | 타입     | 설명            |
-| :------ | :------ | :------------- |
-| `exist` | `bool`  | `wallet`이 DB에 존재하는 경우 `true`, 아닐 경우 `false` |
-
-### Register device
-POST, `Content-Type: application/json`, `/api/register`
-
-`name`을 이름으로 하고 Klaytn 지갑 주소 `wallet`을 지니는 디바이스를 등록합니다.
-
-#### Request
-
+### Log
 ```json
 {
-    "name": "somedevice1", 
-    "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
+    "_id": "string",
+    "timestamp": 0,
+    "type": "string",
+    "json": {}
 }
 ```
-
-| 이름        | 타입      | 설명            |
-| :--------- | :------- | :------------- |
-| `name`     | `string` | 디바이스 이름     |
-| `wallet`   | `string` | 디바이스 Klaytn 지갑 주소 |
-
-#### Response
-
-- 정상 처리 시:
-
-```json
-{
-    "success" : {
-        "name": "somedevice1", 
-        "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
-    }
-}
-```
-
-- 에러 발생 시:
-
-```json
-{
-    "error": "Not valid wallet address"
-}
-```
-
-> 추후 수정 방법:
-> ```json
-> {
->     "success" : true,
->     "name": "somedevice1", 
->     "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
->
-> },
-> {
->     "success" : false,
->     "error": "Not valid wallet address"
-> }
-> ```
-
-| 이름       | 타입      | 설명            |
-| :-------- | :------- | :------------- |
-| `success` | `bool`   | 성공 여부        |
-| `name`    | `string` | 디바이스 이름     |
-| `wallet`  | `string` | 디바이스 Klaytn 지갑 주소 |
-| `error`   | `string` | 에러 메세지      |
-
-## 2. 펌웨어 업로드, 업로드할 디바이스 선택
-- Upload firmware file, choose devices 
-- Web: `/upload`
-
-## 3. 블록체인에 랜덤 키 넣고 전송, DB에 파일 키와 URL, 해시 저장
-Put random key(`utils.random_key()`) in blockchain, save `key`/`route`(route is URL location in server)/`filehash` in DB -> table `File`
-
-## 3. receipt가 돌아오면 txHash를 해당 row에 추가
-Append `txHash` in current file row when `receipt` returns
-
-## 4. 서버가 file_id, txHash를 업데이트 대상인 디바이스 API에 업데이트
-Server sends `txHash`, `file_id` to client API(client checks updates with certain time)
-
-- 각 디바이스는 자신의 인증 정보를 이용하여 일정 시간마다 업데이트 사항이 있는지를 체크
-
-### API
-POST, `Content-Type: application/json`, `/api/check/update`
-
-```json
-{
-    "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
-}
-```
-
-## 5. 디바이스가 public URL을 구해 다운로드
-Client uses `file_id` and `txHash` to get public URL and can download file
-
-- txHash를 통해서 해당 블록의 데이터(key)를 얻어 file_id와 함께 서버로 보내 public URL을 구함
-- 해당 URL을 이용해서 펌웨어 파일을 다운로드 받을 수 있음
-
-### API
-POST, `Content-Type: application/json`, `/api/download/<file_id>`
-
-```json
-{
-    "key": "dzuR5AVP0KCd0GVJnC5lYTUhCWcCuP"
-}
-```
-
-## 6. 디바이스에서 파일 해싱, 서버의 값과 대조
-Client hashes recived file and check with hash in server DB
-
-- 디바이스에서 다운로드한 파일의 해시값과 서버에 있는 파일의 해시값을 비교
-- 이때 비교 결과가 True여야 success 로그가 남음(나중에 7단계로 옮기자)
-
-### API
-POST, `Content-Type: application/json`, `/api/check/hash/<file_id>`
-
-```json
-{
-    "hash": "4e6e424c9e2c7ff4386616cba7bd6b8f",
-    "wallet": "0x75a59b94889a05c03c66c3c84e9d2f8308ca4abd"
-}
-```
-
-## 7. 다 잘 되면 펌웨어 업데이트
-When everything is perfect, Client updates firmware (AND PROFIT!!! ~~at last~~)
