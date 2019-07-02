@@ -1,5 +1,11 @@
 # BISS Firmware Server
 
+<p align="center">
+    <img alt="BISS-logo" src="./images/logo.png" width="600px">
+</p>
+
+> 블록체인으로 만드는 안전한 IoT
+
 ## Workflow
 1. **\*** - Check existence and Register device
 2. **Application** - Upload firmware file, with device names to update2
