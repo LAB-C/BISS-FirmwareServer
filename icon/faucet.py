@@ -37,7 +37,6 @@ def request(address):
         print(wallet_status(address))
 
 def loop():
-    '''automaticlly request faucets for ICON testnet'''
     block_height = 0
     while True:
         current_height = get_block_height()
