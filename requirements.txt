@@ -4,3 +4,4 @@ sanic-cors
 sanic-jwt-extended
 pytest
 pytest-sanic
+http3
